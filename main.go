@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
-	"fly"
+	"github.com/markusazer/payment-transaction-api/fly"
 )
 
 // Response struct which contains an API Response
