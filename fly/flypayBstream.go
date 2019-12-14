@@ -1,24 +1,14 @@
-package json
+package fly
 
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 )
 
-// FlypayATransaction struct is a representation of flypayA Transaction
-type FlypayATransaction struct {
-	Amount         int    `json:"amount"`
-	Currency       string `json:"currency"`
-	StatusCode     int    `json:"statusCode"`
-	Status         string
-	OrderReference string `json:"orderReference"`
-	TransactionID  string `json:"transactionId"`
-}
-
-func StreamParsing() {
+// StreamParsing read the Json in chunks
+func streamBParsing(input *os.File, c chan flypayBTransaction) {
 
 	// Error Handling
 	he := func(err error) {
@@ -26,10 +16,6 @@ func StreamParsing() {
 			log.Fatal(err)
 		}
 	}
-
-	// Open the file
-	input, err := os.Open("flypayA.json")
-	he(err)
 
 	// Start reading the file
 	dec := json.NewDecoder(bufio.NewReader(input))
@@ -58,9 +44,9 @@ func StreamParsing() {
 			// Read transactions
 			for dec.More() {
 				// Read next transaction
-				ft := FlypayATransaction{}
+				ft := flypayBTransaction{}
 				he(dec.Decode(&ft))
-				fmt.Printf("transaction: %+v\n", ft)
+				c <- ft
 			}
 
 			// Array closing delim
@@ -78,4 +64,6 @@ func StreamParsing() {
 	if delim, ok := t.(json.Delim); !ok || delim != '}' {
 		log.Fatal("Expected object closing")
 	}
+
+	close(c)
 }
